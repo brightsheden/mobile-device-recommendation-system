@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile Recommendation AI</title>
+    <script src="https://unpkg.com/htmx.org"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.css" rel="stylesheet" />
+
+    <style>
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+        
+        .animate-spin {
+            animation: spin 1s linear infinite;
+        }
+        
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="min-h-screen p-4 sm:p-6 lg:p-8">
+        <div class="max-w-2xl mx-auto bg-white rounded-lg shadow-sm p-6">
+            <!-- Header -->
+            <div class="mb-8">
+                <div class="flex items-center gap-2 mb-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                    </svg>
+                    <h1 class="text-2xl font-bold">Mobile Device Recommendation System</h1>
+                </div>
+                <p class="text-gray-600">Tell us your preferences and we'll find the perfect mobile device for you.</p>
+            </div>
+
+            <!-- Display Messages -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="p-4 mb-6 text-sm rounded-lg {% if message.tags == 'success' %}bg-green-100 text-green-700{% else %}bg-blue-100 text-blue-700{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <!-- Form Section -->
+            <form 
+                method="POST" 
+                hx-post="" 
+                hx-target="#recommendations" 
+                hx-swap="innerHTML"
+            >
+                {% csrf_token %}
+                <div class="space-y-6">
+                    <!-- Brand Preference -->
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Preferred Brands</label>
+                        <select name="brand" class="w-full p-2 border rounded-lg" required>
+                            <option value="">Select brand(s)</option>
+                            <option value="apple">Apple</option>
+                            <option value="samsung">Samsung</option>
+                            <option value="google">Google</option>
+                            <option value="any">No Preference</option>
+                        </select>
+                    </div>
+
+                    <!-- Budget Range -->
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Budget Range</label>
+                        <select name="budget" class="w-full p-2 border rounded-lg" required>
+                            <option value="">Select budget range</option>
+                            <option value="budget">Under $300</option>
+                            <option value="$300-700">$300 - $700</option>
+                            <option value="$700-1000">$700 - $1000</option>
+                            <option value="$1000+">$1000+</option>
+                        </select>
+                    </div>
+
+                    <!-- Primary Purpose -->
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Primary Purpose</label>
+                        <select name="purpose" class="w-full p-2 border rounded-lg" required>
+                            <option value="">Select primary use</option>
+                            <option value="general">General Use</option>
+                            <option value="business">Business</option>
+                            <option value="photography">Photography</option>
+                            <option value="gaming">Gaming</option>
+                            <option value="multimedia">Multimedia</option>
+                        </select>
+                    </div>
+
+                    <!-- Additional Preferences -->
+                    <div class="space-y-4">
+                        <!-- Screen Size -->
+                        <div>
+                            <label class="block text-sm font-medium">Preferred Screen Size</label>
+                            <select name="screen_size" class="w-full p-2 border rounded-lg">
+                                <option value="">Select size</option>
+                                <option value="small">Compact (under 6")</option>
+                                <option value="medium">Medium (6" - 6.5")</option>
+                                <option value="large">Large (6.5"+)</option>
+                            </select>
+                        </div>
+
+                        <!-- Storage -->
+                        <div>
+                            <label class="block text-sm font-medium">Storage Capacity</label>
+                            <select name="storage" class="w-full p-2 border rounded-lg">
+                                <option value="">Select capacity</option>
+                                <option value="64">64GB</option>
+                                <option value="128">128GB</option>
+                                <option value="256">256GB</option>
+                                <option value="512">512GB+</option>
+                            </select>
+                        </div>
+
+                        <!-- Features -->
+                        <div class="space-y-2">
+                            <div class="flex items-center gap-2">
+                                <input type="checkbox" name="camera" class="w-4 h-4">
+                                <label class="text-sm">Advanced Camera Features</label>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <input type="checkbox" name="gaming" class="w-4 h-4">
+                                <label class="text-sm">Gaming Performance</label>
+                            </div>
+                        </div>
+
+                        <!-- Battery Life -->
+                        <div>
+                            <label class="block text-sm font-medium">Battery Life Priority</label>
+                            <select name="battery_life" class="w-full p-2 border rounded-lg">
+                                <option value="">Select priority</option>
+                                <option value="standard">Standard</option>
+                                <option value="extended">Extended</option>
+                                <option value="maximum">Maximum</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button 
+                    id="submit-button" 
+                    type="submit" 
+                    class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors flex justify-center items-center"
+                >
+                    <!-- Loader (Hidden by Default) -->
+                    <svg 
+                        id="loader" 
+                        class="hidden animate-spin mr-2 h-5 w-5 text-white" 
+                        xmlns="http://www.w3.org/2000/svg" 
+                        fill="none" 
+                        viewBox="0 0 24 24"
+                    >
+                        <circle 
+                            class="opacity-25" 
+                            cx="12" 
+                            cy="12" 
+                            r="10" 
+                            stroke="currentColor" 
+                            stroke-width="4"
+                        ></circle>
+                        <path 
+                            class="opacity-75" 
+                            fill="currentColor" 
+                            d="M4 12a8 8 0 018-8v8h8a8 8 0 01-8 8v-8H4z"
+                        ></path>
+                    </svg>
+                    <span id="button-text">Get Recommendations</span>
+                </button>
+                
+                </div>
+            </form>
+
+            <!-- Recommendations Section -->
+            <div id="recommendations" class="mt-8">
+                {% if recommendations %}
+                    <h2 class="text-xl font-bold mb-4">AI Recommendations</h2>
+                    <div class="bg-gray-100 p-6 rounded-lg shadow-md w-full">
+                        <div class="prose max-w-full text-gray-800">
+                            {{ recommendations | safe }}
+                        </div>
+                    </div>
+                {% else %}
+                    <p class="text-gray-500">No recommendations yet. Fill out the form to get started!</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('htmx:request', function (event) {
+            const button = document.getElementById('submit-button');
+            const loader = document.getElementById('loader');
+            const buttonText = document.getElementById('button-text');
+    
+            // Show loader and hide button text
+            loader.classList.remove('hidden');
+            buttonText.classList.add('hidden');
+    
+            // Disable button to prevent duplicate requests
+            button.disabled = true;
+        });
+    
+        document.addEventListener('htmx:response', function (event) {
+            const button = document.getElementById('submit-button');
+            const loader = document.getElementById('loader');
+            const buttonText = document.getElementById('button-text');
+    
+            // Hide loader and show button text
+            loader.classList.add('hidden');
+            buttonText.classList.remove('hidden');
+    
+            // Re-enable button
+            button.disabled = false;
+        });
+    
+        document.addEventListener('htmx:error', function (event) {
+            const button = document.getElementById('submit-button');
+            const loader = document.getElementById('loader');
+            const buttonText = document.getElementById('button-text');
+    
+            // Hide loader and show button text
+            loader.classList.add('hidden');
+            buttonText.classList.remove('hidden');
+    
+            // Re-enable button
+            button.disabled = false;
+    
+            alert('An error occurred. Please try again.');
+        });
+    </script>
+    
+</body>
+</html>
