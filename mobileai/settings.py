@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-qald60j%ojdz+g7k-zi)iyfl*)h##@lso-iq=x1d%wd1ty4%!*
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['https://mobx-gtme.onrender.com', '127.0.0.1', 'localhost', 'mobx-gtme.onrender.com']
 
 
 # Application definition
