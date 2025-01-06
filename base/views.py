@@ -53,7 +53,11 @@ If the user’s preferences are too restrictive and no options fit all criteria,
     
     return gpt_response
 
+
 def home(request):
+    return render(request, 'landingpage.html')
+
+def recommendai(request):
     recommendations = None
     html_recommendations = None
     if request.method == 'POST':
