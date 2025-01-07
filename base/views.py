@@ -73,13 +73,11 @@ def recommendai(request):
         response = airesponse(brand, budget, purpose, screen_size, storage, camera, gaming, battery_life)
         recommendations = response._result.candidates[0].content.parts[0].text
         html_recommendations = markdown.markdown(recommendations)
-        print(html_recommendations)
+   
 
         return render(request , 'recommendation.html', {'recommendations': html_recommendations} )
     
-    context = {
-        "recommnedations": recommendations
-    }
+   
 
 
     return render(request, 'home.html' )

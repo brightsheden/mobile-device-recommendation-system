@@ -5,28 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mobile Recommendation AI</title>
     <script src="https://unpkg.com/htmx.org"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/3.10.2/cdn.min.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.css" rel="stylesheet" />
 
     <style>
-
         @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-            100% {
-                transform: rotate(360deg);
-            }
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
         
         .animate-spin {
             animation: spin 1s linear infinite;
         }
-        
     </style>
 </head>
 <body class="bg-gray-50">
-    <div class="min-h-screen p-4 sm:p-6 lg:p-8">
+    <div 
+        class="min-h-screen p-4 sm:p-6 lg:p-8" 
+        x-data="{ loading: false }"
+        @htmx:before-request="loading = true"
+        @htmx:after-request="loading = false"
+    >
         <div class="max-w-2xl mx-auto bg-white rounded-lg shadow-sm p-6">
             <!-- Header -->
             <div class="mb-8">
@@ -68,6 +68,7 @@
                             <option value="infinix">Infinix</option>
                             <option value="tecno">Tecno</option>
                             <option value="itel">Itel</option>
+                            <option value="redmi">Redmi</option>
                             <option value="any">No Preference</option>
                         </select>
                     </div>
@@ -77,7 +78,11 @@
                         <label class="block text-sm font-medium mb-2">Budget Range</label>
                         <select name="budget" class="w-full p-2 border rounded-lg" required>
                             <option value="">Select budget range</option>
-                            <option value="budget">Under $300</option>
+                            <option value="budget">Under $50</option>
+                            <option value="$0-50">$0-50</option>
+                            <option value="$50-100">$50-100</option>
+                            <option value="$100-200">$100-200</option>
+                            <option value="$200-300">$200-300</option>
                             <option value="$300-700">$300 - $700</option>
                             <option value="$700-1000">$700 - $1000</option>
                             <option value="$1000+">$1000+</option>
@@ -115,6 +120,10 @@
                             <label class="block text-sm font-medium">Storage Capacity</label>
                             <select name="storage" class="w-full p-2 border rounded-lg">
                                 <option value="">Select capacity</option>
+                                <option value="4">4GB</option>
+                                <option value="8">8GB</option>
+                                <option value="16">16GB</option>
+                                <option value="32">32GB</option>
                                 <option value="64">64GB</option>
                                 <option value="128">128GB</option>
                                 <option value="256">256GB</option>
@@ -148,35 +157,23 @@
 
                     <!-- Submit Button -->
                     <button 
-                    id="submit-button" 
-                    type="submit" 
-                    class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors flex justify-center items-center"
-                >
-                    <!-- Loader (Hidden by Default) -->
-                    <svg 
-                        id="loader" 
-                        class="hidden animate-spin mr-2 h-5 w-5 text-white" 
-                        xmlns="http://www.w3.org/2000/svg" 
-                        fill="none" 
-                        viewBox="0 0 24 24"
+                        type="submit" 
+                        class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors"
+                        x-bind:disabled="loading"
                     >
-                        <circle 
-                            class="opacity-25" 
-                            cx="12" 
-                            cy="12" 
-                            r="10" 
-                            stroke="currentColor" 
-                            stroke-width="4"
-                        ></circle>
-                        <path 
-                            class="opacity-75" 
-                            fill="currentColor" 
-                            d="M4 12a8 8 0 018-8v8h8a8 8 0 01-8 8v-8H4z"
-                        ></path>
-                    </svg>
-                    <span id="button-text">Get Recommendations</span>
-                </button>
-                
+                        <span x-show="loading">
+                            <div class="flex items-center justify-center gap-2">
+                                <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                Finding Recommendations...
+                            </div>
+                        </span>
+                        <span x-show="!loading">
+                            Get Recommendations
+                        </span>
+                    </button>
                 </div>
             </form>
 
@@ -195,49 +192,5 @@
             </div>
         </div>
     </div>
-
-    <script>
-        document.addEventListener('htmx:request', function (event) {
-            const button = document.getElementById('submit-button');
-            const loader = document.getElementById('loader');
-            const buttonText = document.getElementById('button-text');
-    
-            // Show loader and hide button text
-            loader.classList.remove('hidden');
-            buttonText.classList.add('hidden');
-    
-            // Disable button to prevent duplicate requests
-            button.disabled = true;
-        });
-    
-        document.addEventListener('htmx:response', function (event) {
-            const button = document.getElementById('submit-button');
-            const loader = document.getElementById('loader');
-            const buttonText = document.getElementById('button-text');
-    
-            // Hide loader and show button text
-            loader.classList.add('hidden');
-            buttonText.classList.remove('hidden');
-    
-            // Re-enable button
-            button.disabled = false;
-        });
-    
-        document.addEventListener('htmx:error', function (event) {
-            const button = document.getElementById('submit-button');
-            const loader = document.getElementById('loader');
-            const buttonText = document.getElementById('button-text');
-    
-            // Hide loader and show button text
-            loader.classList.add('hidden');
-            buttonText.classList.remove('hidden');
-    
-            // Re-enable button
-            button.disabled = false;
-    
-            alert('An error occurred. Please try again.');
-        });
-    </script>
-    
 </body>
 </html>
